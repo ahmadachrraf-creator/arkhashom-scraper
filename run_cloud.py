@@ -17,6 +17,7 @@ from events_store import EventsStore
 from promotions_store import PromotionsStore, extract_psp_id, psp_url
 
 DATA_DIR = "data"
+SHARED_HISTORY_FILE = os.path.join(DATA_DIR, "posted_history_shared.json")
 SHARED_EVENTS_FILE  = os.path.join(DATA_DIR, "events_store_shared.json")
 SHARED_BUTTONS_FILE = os.path.join(DATA_DIR, "buttons_store_shared.json")
 
@@ -56,7 +57,10 @@ def run_single_cycle(spec, shared):
     spec["telegram_token"] = token
 
     os.makedirs(DATA_DIR, exist_ok=True)
-    history_file = os.path.join(DATA_DIR, f"posted_history_{key}.json")
+
+    # ALL bots share one history file — prevents duplicate posts across bots
+    history_file = SHARED_HISTORY_FILE
+
     min_discount = int(spec.get("min_discount_pct", 10))
     categories = list(spec.get("categories", []))
 
@@ -139,7 +143,7 @@ def _run_products_cycle(key, spec, scraper, captioner, poster, history, events, 
         log(key, f"   {len(fresh)} fresh candidates")
 
         opens = 0
-        max_opens = 15  # limit Selenium page loads per bot per run
+        max_opens = 15
         best_fallback = None
 
         for url in fresh:
@@ -180,6 +184,11 @@ def _run_products_cycle(key, spec, scraper, captioner, poster, history, events, 
             if not os.path.exists(screenshot) or os.path.getsize(screenshot) == 0:
                 continue
 
+            # Re-check shared history right before posting (prevents race duplicates)
+            if history.has_posted(url):
+                log(key, f"   ⏭️ Already posted by another bot — skip")
+                continue
+
             caption = captioner.generate(info)
             affiliate_url = info.get("affiliate_url") or info.get("url")
             ok, res = poster.post_product(screenshot, caption, affiliate_url)
@@ -192,16 +201,17 @@ def _run_products_cycle(key, spec, scraper, captioner, poster, history, events, 
         # Force-post best fallback if nothing cleared the threshold
         if posted == 0 and best_fallback:
             disc, url = best_fallback
-            log(key, f"⚡ Force-posting best available ({disc}% off)")
-            info = scraper.get_product_info(url)
-            if info.get("title") and info.get("current_price"):
-                if scraper.capture_product_screenshot(url, screenshot):
-                    caption = captioner.generate(info)
-                    ok, res = poster.post_product(screenshot, caption,
-                                                  info.get("affiliate_url") or url)
-                    if ok:
-                        history.mark_posted(url, info.get("title", ""))
-                        posted += 1
+            if not history.has_posted(url):
+                log(key, f"⚡ Force-posting best available ({disc}% off)")
+                info = scraper.get_product_info(url)
+                if info.get("title") and info.get("current_price"):
+                    if scraper.capture_product_screenshot(url, screenshot):
+                        caption = captioner.generate(info)
+                        ok, res = poster.post_product(screenshot, caption,
+                                                      info.get("affiliate_url") or url)
+                        if ok:
+                            history.mark_posted(url, info.get("title", ""))
+                            posted += 1
 
     return posted
 
@@ -253,7 +263,6 @@ def _run_promotions_cycle(key, spec, scraper, captioner, poster, history, events
         products = info.get("product_urls") or []
 
         if not products:
-            # Re-try once
             info = scraper.get_promotion_info(url)
             title = info.get("title") or target.get("title")
             products = info.get("product_urls") or []
