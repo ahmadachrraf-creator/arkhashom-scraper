@@ -18,10 +18,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+      - name: Install Chrome & ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-chromedriver: true
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
