@@ -1,14 +1,14 @@
 """
-Buttons Store v4.2
+Buttons Store v4.3
 Persists configurable Telegram inline buttons (text + URL) for post layouts.
 
-Default buttons match the n8n workflow exactly:
+Default buttons:
   Row 1: ⚡ أقوى العروض
   Row 2: 👑 اشترك في برايم
 
 Layouts:
-- "1+2"   : one button on top, two on bottom (3 buttons total)
 - "1+1"   : two buttons stacked (2 buttons total) — DEFAULT
+- "1+2"   : one button on top, two on bottom (3 buttons total)
 - "1+2+1" : one top, two middle, one bottom (4 buttons total)
 
 Storage: buttons_store.json
@@ -20,15 +20,19 @@ import os
 BUTTONS_FILE = os.path.join("data", "buttons_store_shared.json")
 
 DEFAULT_BUTTONS = {
-  "layout": "1+1",
-  "top": {
-    "text": "⚡ أقوى العروض",
-    "url": "https://amzn.to/4tQQHmQ"
-  },
-  "bottom_left": {
-    "text": "👑 اشترك في برايم",
-    "url": "https://amzn.to/4a4taaW"
-  },
+    "layout": "1+1",
+    "top": {
+        "text": "⚡ أقوى العروض",
+        "url": "https://amzn.to/4tQQHmQ",
+    },
+    "bottom_left": {
+        "text": "👑 اشترك في برايم",
+        "url": "https://amzn.to/4a4taaW",
+    },
+    "bottom_right": {
+        "text": "👑 اشترك في برايم",
+        "url": "https://amzn.to/4a4taaW",
+    },
     "extra_bottom": {
         "text": "🛒 اطلب الآن",
         "url": "https://amzn.to/4nMQOOX",
@@ -86,7 +90,7 @@ class ButtonsStore:
 
     def build_keyboard(self):
         """Build Telegram inline_keyboard list-of-rows from config."""
-        layout = self.config.get("layout", "1+2")
+        layout = self.config.get("layout", "1+1")
         top = self.config.get("top", DEFAULT_BUTTONS["top"])
         bl  = self.config.get("bottom_left", DEFAULT_BUTTONS["bottom_left"])
         br  = self.config.get("bottom_right", DEFAULT_BUTTONS["bottom_right"])
@@ -103,7 +107,7 @@ class ButtonsStore:
                 {"text": br["text"], "url": br["url"]},
             ])
             keyboard.append([{"text": eb["text"], "url": eb["url"]}])
-        else:  # "1+2" — default
+        else:  # "1+2"
             keyboard.append([{"text": top["text"], "url": top["url"]}])
             keyboard.append([
                 {"text": bl["text"], "url": bl["url"]},
