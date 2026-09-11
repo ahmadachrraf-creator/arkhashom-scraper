@@ -7,8 +7,8 @@ Default buttons match the n8n workflow exactly:
   Row 2: 👑 اشترك في برايم
 
 Layouts:
-- "1+2"   : one button on top, two on bottom (3 buttons total) — DEFAULT
-- "1+1"   : two buttons stacked (2 buttons total)
+- "1+2"   : one button on top, two on bottom (3 buttons total)
+- "1+1"   : two buttons stacked (2 buttons total) — DEFAULT
 - "1+2+1" : one top, two middle, one bottom (4 buttons total)
 
 Storage: buttons_store.json
