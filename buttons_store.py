@@ -3,8 +3,8 @@ Buttons Store v4.2
 Persists configurable Telegram inline buttons (text + URL) for post layouts.
 
 Default buttons match the n8n workflow exactly:
-  Row 1: 🏆 عروض العودة للمدارس
-  Row 2: ⚡ أقوى العروض  |  👑 اشترك في برايم
+  Row 1: ⚡ أقوى العروض
+  Row 2: 👑 اشترك في برايم
 
 Layouts:
 - "1+2"   : one button on top, two on bottom (3 buttons total) — DEFAULT
@@ -20,19 +20,15 @@ import os
 BUTTONS_FILE = os.path.join("data", "buttons_store_shared.json")
 
 DEFAULT_BUTTONS = {
-    "layout": "1+2",
-    "top": {
-        "text": "🏆 عروض العودة للمدارس",
-        "url": "https://link.amazon/B03sh5MX5",
-    },
-    "bottom_left": {
-        "text": "⚡ أقوى العروض",
-        "url": "https://amzn.to/4tQQHmQ",
-    },
-    "bottom_right": {
-        "text": "👑 اشترك في برايم",
-        "url": "https://amzn.to/4a4taaW",
-    },
+  "layout": "1+1",
+  "top": {
+    "text": "⚡ أقوى العروض",
+    "url": "https://amzn.to/4tQQHmQ"
+  },
+  "bottom_left": {
+    "text": "👑 اشترك في برايم",
+    "url": "https://amzn.to/4a4taaW"
+  },
     "extra_bottom": {
         "text": "🛒 اطلب الآن",
         "url": "https://amzn.to/4nMQOOX",
