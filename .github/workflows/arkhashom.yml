@@ -18,17 +18,19 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install Chrome & ChromeDriver
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-          install-chromedriver: true
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
       - name: Create data directory
         run: mkdir -p data
+
+      - name: Remove stale chromedriver
+        run: sudo rm -f /usr/bin/chromedriver /usr/local/bin/chromedriver
 
       - name: Run bot
         env:
